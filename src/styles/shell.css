@@ -1,0 +1,206 @@
+/**
+ * Shared shell — §6: nav, footer, layout container, content width, focus
+ * styles, reduced-motion handling. Unthemed: it inherits whatever tokens the
+ * page sets.
+ *
+ * INVARIANT: this file contains no colour literals. Every colour is a token
+ * reference. `tests/shell-unthemed.test.ts` enforces it.
+ */
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--type-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.theme-root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Layout ------------------------------------------------------------- */
+
+.shell-main {
+  flex: 1;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: var(--space-3);
+}
+
+/* §5.3: one column of text, line length under 75 characters. */
+.prose {
+  max-width: var(--measure);
+}
+
+/* §5.3: diagrams are inline with the text they explain, left-aligned with the
+   copy, never in cards. Wider than the measure, flush with the text edge. */
+.figure {
+  margin-block: var(--space-5);
+  max-width: 100%;
+}
+
+.figure figcaption {
+  margin-block-start: var(--space-2);
+  color: var(--dg-annotation);
+  font-family: var(--font-annotation);
+  font-size: var(--type--1);
+  letter-spacing: var(--annotation-tracking);
+  max-width: var(--measure);
+}
+
+/* --- Typography --------------------------------------------------------- */
+
+.h1,
+.h2,
+.h3 {
+  font-family: var(--font-heading);
+  line-height: var(--leading-heading);
+  letter-spacing: -0.015em;
+}
+
+.h1 {
+  font-size: var(--type-4);
+  font-weight: 600;
+}
+.h2 {
+  font-size: var(--type-2);
+  font-weight: 600;
+}
+.h3 {
+  font-size: var(--type-1);
+  font-weight: 600;
+}
+
+.annotation {
+  font-family: var(--font-annotation);
+  font-size: var(--type--1);
+  letter-spacing: var(--annotation-tracking);
+  text-transform: uppercase;
+  color: var(--dg-annotation);
+}
+
+.section {
+  padding-block: var(--space-7);
+  border-block-start: 1px solid var(--rule);
+}
+
+.section:first-child {
+  border-block-start: 0;
+}
+
+/* --- Navigation --------------------------------------------------------- */
+
+.shell-nav {
+  border-block-end: 1px solid var(--rule);
+  background: var(--bg);
+}
+
+.shell-nav__inner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+}
+
+.shell-nav__name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  text-decoration: none;
+  margin-inline-end: auto;
+}
+
+.shell-nav__link {
+  font-size: var(--type--1);
+  text-decoration: none;
+  color: var(--ink-secondary);
+  border-block-end: 1px solid transparent;
+}
+
+.shell-nav__link:hover {
+  color: var(--ink);
+  border-block-end-color: var(--rule);
+}
+
+/* --- Footer ------------------------------------------------------------- */
+
+.shell-footer {
+  border-block-start: 1px solid var(--rule);
+  padding-block: var(--space-4);
+  color: var(--ink-secondary);
+  font-size: var(--type--1);
+}
+
+.shell-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+/* --- Call to action ----------------------------------------------------- */
+/* §5.3: structure comes from rules and annotation, not from filled cards.
+   The CTA is the one place the accent is allowed to fill (§5.4). */
+
+.cta {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.cta:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* --- Focus and skip link (§7 accessibility) ----------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--space-2);
+  inset-block-start: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  text-decoration: none;
+  transform: translateY(-200%);
+  z-index: 10;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* --- Reduced motion ----------------------------------------------------- */
+/* §6: a single reduced-motion switch. The JS driver reads the same signal via
+   src/diagram/motion/reduced-motion.ts and renders the scene's static frame
+   instead of subscribing to scroll. */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

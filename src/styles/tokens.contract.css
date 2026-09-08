@@ -1,0 +1,101 @@
+/**
+ * TOKEN CONTRACT
+ * ==============
+ * Spec §6: every route defines its own token set on a `[data-theme]` wrapper.
+ * Components read tokens; they never hardcode a colour.
+ *
+ * This file does two things:
+ *   1. Declares the REQUIRED token names every theme must define (below).
+ *   2. Provides STRUCTURAL defaults on :root that a theme may override.
+ *
+ * The required list is machine-read by `tests/tokens.contract.test.ts`, which
+ * fails the build if any theme in src/styles/themes/ omits a name. Keep the
+ * block below exactly in this format — one `--token` per line.
+ *
+ * @theme-contract
+ *   --bg
+ *   --surface
+ *   --ink
+ *   --ink-secondary
+ *   --rule
+ *   --grid
+ *   --accent
+ *   --accent-contrast
+ *   --focus
+ *   --dg-line
+ *   --dg-hatch
+ *   --dg-annotation
+ *   --dg-fault
+ *   --dg-active
+ *   --dg-node-fill
+ *   --font-body
+ *   --font-heading
+ *   --font-annotation
+ * @end-theme-contract
+ *
+ * Token meanings:
+ *   --bg / --surface     page ground, and the slightly raised drawing ground
+ *   --ink / --ink-secondary   body text, and de-emphasised text
+ *   --rule               hairline rules and borders
+ *   --grid               the drawing grid and graph paper
+ *   --accent             §5.4: used ONLY for the "current" state and the CTA
+ *   --accent-contrast    text placed on top of --accent
+ *   --focus              focus ring
+ *   --dg-line            main drawing stroke
+ *   --dg-hatch           section hatching
+ *   --dg-annotation      drawing notes, issue titles, log lines
+ *   --dg-fault           the one thing going wrong in a scene (§3.3)
+ *   --dg-active          the lit / current element in a scene
+ *   --dg-node-fill       fill inside nodes and boxes
+ */
+
+:root {
+  /* --- Drawing grid ------------------------------------------------------
+     Everything spatial is a multiple of --grid-unit so the three chapters
+     share one grid (R4). */
+  --grid-unit: 0.5rem;
+  --space-1: var(--grid-unit);
+  --space-2: calc(var(--grid-unit) * 2);
+  --space-3: calc(var(--grid-unit) * 3);
+  --space-4: calc(var(--grid-unit) * 5);
+  --space-5: calc(var(--grid-unit) * 8);
+  --space-6: calc(var(--grid-unit) * 13);
+  --space-7: calc(var(--grid-unit) * 21);
+
+  /* --- Type scale, ratio 1.25 (§5.4) ------------------------------------ */
+  --type-base: 1.0625rem; /* 17px mobile */
+  --type--1: calc(var(--type-base) / 1.25);
+  --type-1: calc(var(--type-base) * 1.25);
+  --type-2: calc(var(--type-1) * 1.25);
+  --type-3: calc(var(--type-2) * 1.25);
+  --type-4: calc(var(--type-3) * 1.25);
+
+  --leading-body: 1.6;
+  --leading-heading: 1.15;
+  --measure: 68ch; /* §5.3: line length under 75 characters */
+  --content-width: 44rem;
+  --annotation-tracking: 0.06em;
+
+  /* --- Drawing stroke weights (R4: identical across chapters) ------------
+     Applied with vector-effect: non-scaling-stroke, so weight is constant
+     regardless of the viewBox a diagram is drawn in. */
+  --dg-stroke-heavy: 1.6;
+  --dg-stroke: 1;
+  --dg-stroke-thin: 0.6;
+
+  /* --- Motion ------------------------------------------------------------ */
+  --motion-fast: 160ms;
+  --motion-base: 320ms;
+  --motion-slow: 720ms;
+  --ease-draw: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* §5.3: no rounded-card grid. Stated explicitly so it cannot drift. */
+  --radius: 0;
+}
+
+@media (min-width: 48em) {
+  :root {
+    --type-base: 1.125rem; /* 18px desktop */
+  }
+}

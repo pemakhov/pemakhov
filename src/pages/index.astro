@@ -1,0 +1,139 @@
+---
+/**
+ * Home (§4). Theme: direction A, "drafting paper".
+ *
+ * Phase 1 scope: real typography, nav, section structure and theme scoping.
+ * Diagrams are placeholders — Phase 2 renders the motif here as build-time SVG.
+ *
+ * Copy marked [decide] / [supply] is drafted from the spec and is NOT final.
+ */
+import Shell from '../layouts/Shell.astro';
+import '../styles/themes/home.css';
+
+// [decide §3.1 / §10.1] — candidate 1 of three. The other two are in the spec.
+const positioning = 'I design mechanisms. These days they’re made of code and models.';
+
+// Drafted from spec §3.2. Paragraphs are [supply]: 60–90 words each, in
+// Serhii's own words, with the true details from §10.9.
+const chapters = [
+  {
+    period: 'until early 2022',
+    title: 'Mechanical design',
+    hook: 'The first thing I ever shipped had a tolerance of ±0.02 mm and no undo button.',
+    body:
+      'Designed physical mechanisms and assemblies — tolerances, kinematics, ' +
+      'drawings a machinist can build from.',
+    carried: 'Constraints are the design. The system must be buildable by someone who isn’t you.',
+  },
+  {
+    period: '2022 → now',
+    title: 'Full-stack web',
+    hook: 'Then I found a material you can fix at 2 a.m. from your phone.',
+    body:
+      'Node.js (NestJS), React (Next.js), PostgreSQL, Azure and AWS. Sole developer or ' +
+      'small team on client products, owning product decisions and client communication.',
+    carried: 'The whole-system view. Being the only engineer in the room. Shipping under real deadlines.',
+  },
+  {
+    period: 'now',
+    title: 'AI-first development',
+    hook: 'Now the drawing draws itself, and I review it.',
+    body:
+      'I build with agents rather than only writing code — Claude Code as the workbench, ' +
+      'custom harnesses and skills, bots, RAG, remote-controlled dev workflows.',
+    carried: 'For you: faster iteration, cheaper experiments, automation that actually gets maintained.',
+  },
+];
+
+// §3.4 — four services mapped 1:1 to the audience table in §2. [supply]
+const services = [
+  { need: 'Build a product from scratch', title: 'Ship a product end to end' },
+  { need: 'Improve an existing product', title: 'Work inside a system you already have' },
+  { need: 'Automate a process', title: 'Automate the work nobody wants to do' },
+  { need: 'Get a personal AI agent', title: 'Put an agent to work for you' },
+];
+
+// §3.6 [decide §10.4] — recommendation is email + Telegram links, no form.
+const cta = { label: 'Email me about your project', href: 'mailto:[supply]' };
+---
+
+<Shell
+  title="Serhii Pemakhov — mechanical design to AI-first development"
+  description={positioning}
+  theme="home"
+>
+  <!-- 1. Hero (R1, R2) -->
+  <section class="section container" aria-labelledby="hero-heading">
+    <p class="annotation">Serhii Pemakhov</p>
+    <h1 class="h1 prose" id="hero-heading">{positioning}</h1>
+    <!-- Phase 3: the hero animation replaces this figure (§5.2). -->
+    <figure class="figure" data-scene="hero">
+      <p class="annotation">[Phase 3] Hero: mechanism → agent graph</p>
+    </figure>
+    <p><a class="cta" href={cta.href}>{cta.label}</a></p>
+  </section>
+
+  <!-- 2. Story — three chapters (R3, R12, R13) -->
+  <section class="section container" aria-labelledby="story-heading">
+    <h2 class="h2 prose" id="story-heading">Three materials, one habit</h2>
+    {
+      chapters.map((chapter, index) => (
+        <article class="prose">
+          <p class="annotation">{`Chapter ${index + 1} · ${chapter.period}`}</p>
+          <h3 class="h3">{chapter.title}</h3>
+          <p>{chapter.hook}</p>
+          {/* Phase 2 renders the motif frame here; Phase 4 makes it scroll-driven. */}
+          <figure class="figure" data-scene={`chapter-${index + 1}`}>
+            <p class="annotation">{`[Phase 2] Motif frame ${index + 1}`}</p>
+          </figure>
+          <p>{chapter.body}</p>
+          <p><strong>What carried over:</strong> {chapter.carried}</p>
+        </article>
+      ))
+    }
+  </section>
+
+  <!-- 3. What I can do for you (R5, R15) -->
+  <section class="section container" id="services" aria-labelledby="services-heading">
+    <h2 class="h2 prose" id="services-heading">What I can do for you</h2>
+    <div class="prose">
+      {
+        services.map((service) => (
+          <article>
+            <h3 class="h3">{service.title}</h3>
+            <p class="annotation">{service.need}</p>
+            <p>[supply §9] Two sentences: what I do, what you get.</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 4. Selected work (R6) -->
+  <section class="section container" id="work" aria-labelledby="work-heading">
+    <h2 class="h2 prose" id="work-heading">Selected work</h2>
+    <p class="prose">
+      [supply §3.5] Two to four case studies: problem → what I built → result → stack.
+      Phase 5 reads these from src/content/work/.
+    </p>
+  </section>
+
+  <!-- 5. How I work (R7) -->
+  <section class="section container" aria-labelledby="process-heading">
+    <h2 class="h2 prose" id="process-heading">How I work</h2>
+    <figure class="figure" data-scene="process">
+      <p class="annotation">[Phase 5] The AI-first loop, one diagram</p>
+    </figure>
+  </section>
+
+  <!-- 6. Contact (R8) -->
+  <section class="section container" id="contact" aria-labelledby="contact-heading">
+    <h2 class="h2 prose" id="contact-heading">Contact</h2>
+    <!-- §3.3: the motif appears here one last time, at rest, with the CTA as its only note. -->
+    <figure class="figure" data-scene="contact">
+      <p class="annotation">[Phase 5] Motif at rest</p>
+    </figure>
+    <p><a class="cta" href={cta.href}>{cta.label}</a></p>
+    <p class="annotation">[supply §9] Location and time zone</p>
+  </section>
+</Shell>
