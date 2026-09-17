@@ -1,0 +1,233 @@
+---
+/**
+ * Hero scene (§5.2): the motif pinned in the middle of the screen, driven by
+ * scroll through a tall track.
+ *
+ * The frame at t = 0 is rendered here at build time, so first paint needs no
+ * JS. The script then attaches the scroll driver; under reduced motion it
+ * renders one static frame instead and the track collapses to one screen.
+ * Without JS the track is also one screen tall — there is nothing to scrub.
+ */
+import { drawList, groupTransform, VIEWBOX } from '../diagram/motif/kinematics';
+import { evaluate } from '../diagram/storyboard/hero';
+import '../diagram/primitives/drawing.css';
+
+interface Props {
+  /** Text alternative that states the drawing's point (§7). */
+  description: string;
+}
+
+const { description } = Astro.props;
+const frame = evaluate(0);
+const items = drawList(frame.params);
+
+// Progress ruler: a tick every 8 units, a long tick every 5th.
+const RULER_WIDTH = 320;
+const RULER_STEP = 8;
+const rulerTicks = Array.from({ length: RULER_WIDTH / RULER_STEP + 1 }, (_, i) => {
+  const x = i * RULER_STEP;
+  return i % 5 === 0 ? `M${x} 4V20` : `M${x} 8V16`;
+}).join('');
+---
+
+<div class="hero-track" data-hero-track>
+  <div class="hero-stage">
+    <div class="hero-copy container">
+      <slot />
+    </div>
+
+    <figure class="hero-figure">
+      <svg
+        class="hero-svg"
+        viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+        role="img"
+        aria-labelledby="hero-title"
+      >
+        <title id="hero-title">{description}</title>
+        <g data-motif transform={groupTransform(frame.params)}>
+          <path class="dg-centerline" d="M0 -490V490" />
+          {items.map((item) => <path class={item.cls} data-key={item.key} d={item.d} />)}
+        </g>
+        <g aria-hidden="true">
+          {
+            frame.callouts.map((c) => (
+              <g data-callout={c.id} style={`opacity:${c.progress > 0 ? 1 : 0}`}>
+                <path class="dg-leader" d={c.d} />
+                <text
+                  class="dg-note"
+                  x={c.textX}
+                  y={c.textY}
+                  text-anchor={c.anchor}
+                  style={`opacity:${c.progress}`}
+                >
+                  {c.label}
+                </text>
+              </g>
+            ))
+          }
+        </g>
+      </svg>
+    </figure>
+
+    <svg class="hero-ruler" viewBox={`-8 0 ${RULER_WIDTH + 16} 24`} aria-hidden="true">
+      <path class="hero-ruler__ticks" d={rulerTicks} />
+      <path class="hero-ruler__mark" data-ruler-mark d="M0 2V22" />
+    </svg>
+  </div>
+</div>
+
+<script>
+  import { drawList, groupTransform } from '../diagram/motif/kinematics';
+  import { evaluate, STATIC_T } from '../diagram/storyboard/hero';
+  import { attachScrollDriver } from '../diagram/motion/driver';
+  import { prefersReducedMotion } from '../diagram/motion/reduced-motion';
+
+  const RULER_WIDTH = 320;
+  const track = document.querySelector<HTMLElement>('[data-hero-track]');
+  const group = track?.querySelector<SVGGElement>('[data-motif]');
+
+  if (track && group) {
+    const paths = new Map(
+      [...group.querySelectorAll<SVGPathElement>('[data-key]')].map((el) => [el.dataset.key, el]),
+    );
+    const callouts = new Map(
+      [...track.querySelectorAll<SVGGElement>('[data-callout]')].map((el) => [
+        el.dataset.callout,
+        {
+          root: el,
+          leader: el.querySelector<SVGPathElement>('.dg-leader'),
+          note: el.querySelector<SVGTextElement>('.dg-note'),
+        },
+      ]),
+    );
+    const mark = track.querySelector<SVGPathElement>('[data-ruler-mark]');
+
+    const render = (t: number): void => {
+      const frame = evaluate(t);
+      group.setAttribute('transform', groupTransform(frame.params));
+      for (const item of drawList(frame.params)) paths.get(item.key)?.setAttribute('d', item.d);
+      for (const c of frame.callouts) {
+        const el = callouts.get(c.id);
+        if (!el) continue;
+        el.root.style.opacity = c.progress > 0 ? '1' : '0';
+        el.leader?.setAttribute('d', c.d);
+        if (el.note) el.note.style.opacity = String(c.progress);
+      }
+      mark?.setAttribute('transform', `translate(${(t * RULER_WIDTH).toFixed(1)} 0)`);
+    };
+
+    if (prefersReducedMotion()) {
+      render(STATIC_T);
+    } else {
+      attachScrollDriver(track, render);
+    }
+  }
+</script>
+
+<style>
+  .hero-track {
+    position: relative;
+  }
+
+  .hero-stage {
+    position: relative;
+    height: 100dvh;
+    min-height: 32rem;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  /* Only a scrubbable page gets the tall track and the pin. Without script,
+     or with reduced motion, the scene is one static screen. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .hero-track {
+      height: 420vh;
+    }
+    .hero-stage {
+      position: sticky;
+      top: 0;
+    }
+  }
+
+  .hero-copy {
+    padding-block-start: var(--space-4);
+  }
+
+  /* The grid row decides the figure's height; the SVG then fills that box
+     and its viewBox letterboxes the square drawing inside it. */
+  .hero-figure {
+    position: relative;
+    min-height: 0;
+    margin: var(--space-2) var(--space-3) var(--space-5);
+  }
+
+  .hero-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    overflow: visible;
+  }
+
+  /* Wide screens: the drawing takes the whole stage and the copy sits in its
+     top-left corner, clear of the notes (top-right and bottom-left). */
+  @media (min-width: 64em) {
+    .hero-stage {
+      grid-template-rows: minmax(0, 1fr);
+    }
+    .hero-copy,
+    .hero-figure {
+      grid-area: 1 / 1;
+    }
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      align-self: start;
+      max-width: 30rem;
+      margin-inline: 0;
+      padding-inline-start: var(--space-5);
+    }
+    .hero-figure {
+      margin: var(--space-3) var(--space-3) var(--space-4);
+    }
+  }
+
+  .hero-svg :global(.dg-note) {
+    font-size: 22px;
+  }
+
+  /* The drawing scales down with the screen; its notes must not. */
+  @media (max-width: 40em) {
+    .hero-svg :global(.dg-note) {
+      font-size: 34px;
+    }
+  }
+
+  .hero-ruler {
+    position: absolute;
+    inset-inline-end: var(--space-3);
+    inset-block-end: var(--space-3);
+    width: min(16rem, 50vw);
+    height: auto;
+    padding: var(--space-1) var(--space-2);
+    background: var(--ink);
+  }
+
+  .hero-ruler__ticks {
+    fill: none;
+    stroke: var(--ink-secondary);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* The ruler mark is "where you are now" — the current state §5.4 allows
+     the accent for. */
+  .hero-ruler__mark {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+</style>

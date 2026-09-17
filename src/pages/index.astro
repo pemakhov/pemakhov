@@ -9,9 +9,16 @@
  */
 import Shell from '../layouts/Shell.astro';
 import '../styles/themes/home.css';
+import HeroScene from '../scenes/HeroScene.astro';
 
 // [decide §3.1 / §10.1] — candidate 1 of three. The other two are in the spec.
 const positioning = 'I design mechanisms. These days they’re made of code and models.';
+
+// §7: the text alternative states the drawing's point. The mechanism itself is
+// a stand-in until §10.7 is decided.
+const heroDescription =
+  'A mechanism drawn like an engineering drawing. As you scroll it tips over, ' +
+  'comes apart along its shaft so each part can be named, and goes back together.';
 
 // Drafted from spec §3.2. Paragraphs are [supply]: 60–90 words each, in
 // Serhii's own words, with the true details from §10.9.
@@ -62,15 +69,13 @@ const cta = { label: 'Email me about your project', href: 'mailto:[supply]' };
   description={positioning}
   theme="home"
 >
-  <!-- 1. Hero (R1, R2) -->
-  <section class="section container" aria-labelledby="hero-heading">
-    <p class="annotation">Serhii Pemakhov</p>
-    <h1 class="h1 prose" id="hero-heading">{positioning}</h1>
-    <!-- Phase 3: the hero animation replaces this figure (§5.2). -->
-    <figure class="figure" data-scene="hero">
-      <p class="annotation">[Phase 3] Hero: mechanism → agent graph</p>
-    </figure>
-    <p><a class="cta" href={cta.href}>{cta.label}</a></p>
+  <!-- 1. Hero (R1, R2). The motif is pinned mid-screen and driven by scroll. -->
+  <section aria-labelledby="hero-heading">
+    <HeroScene description={heroDescription}>
+      <p class="annotation">Serhii Pemakhov</p>
+      <h1 class="h1 prose" id="hero-heading">{positioning}</h1>
+      <p class="hero-cta"><a class="cta" href={cta.href}>{cta.label}</a></p>
+    </HeroScene>
   </section>
 
   <!-- 2. Story — three chapters (R3, R12, R13) -->
@@ -137,3 +142,9 @@ const cta = { label: 'Email me about your project', href: 'mailto:[supply]' };
     <p class="annotation">[supply §9] Location and time zone</p>
   </section>
 </Shell>
+
+<style>
+  .hero-cta {
+    margin-block-start: var(--space-3);
+  }
+</style>
