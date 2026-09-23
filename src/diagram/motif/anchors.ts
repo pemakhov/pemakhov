@@ -31,6 +31,10 @@ export interface Part {
   readonly spin?: number;
 }
 
+/** Box size every part converges to when the motif is drawn as a system (uniform = 1). */
+export const UNIFORM_R = 150;
+export const UNIFORM_H = 56;
+
 export const SHAFT_RADIUS = 16;
 /** How far the shaft sticks out past the first and last part. */
 export const SHAFT_OVERHANG = 44;

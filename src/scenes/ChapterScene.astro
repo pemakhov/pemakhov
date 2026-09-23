@@ -1,0 +1,79 @@
+---
+/**
+ * One story chapter (§3.2): copy on the left, the chapter's scene pinned on
+ * the right while scroll plays it. On narrow screens the copy comes first and
+ * the scene pins below it.
+ *
+ * Exactly one diagram per chapter (R3). Copy arrives through the slot.
+ */
+import MotifFigure from './MotifFigure.astro';
+
+interface Props {
+  scene: string;
+  labelledBy: string;
+}
+
+const { scene, labelledBy } = Astro.props;
+---
+
+<article class="chapter" aria-labelledby={labelledBy}>
+  <div class="chapter__copy prose">
+    <slot />
+  </div>
+  <div class="chapter__track" data-scene-track>
+    <div class="chapter__stage">
+      <MotifFigure scene={scene} />
+    </div>
+  </div>
+</article>
+
+<style>
+  .chapter {
+    display: grid;
+    padding-block: var(--space-6) 0;
+  }
+
+  .chapter + .chapter {
+    border-block-start: 1px solid var(--rule);
+  }
+
+  .chapter__copy {
+    padding-inline: var(--space-3);
+  }
+
+  .chapter__copy > :global(* + *) {
+    margin-block-start: var(--space-2);
+  }
+
+  .chapter__stage {
+    height: 100dvh;
+    min-height: 30rem;
+    padding-block: var(--space-4);
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .chapter__track {
+      height: 280vh;
+    }
+    .chapter__stage {
+      position: sticky;
+      top: 0;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .chapter {
+      grid-template-columns: minmax(18rem, 28rem) minmax(0, 1fr);
+      column-gap: var(--space-5);
+      padding-inline-start: var(--space-5);
+    }
+
+    /* The copy stays in view while its scene plays. */
+    .chapter__copy {
+      position: sticky;
+      top: var(--space-6);
+      align-self: start;
+      padding-inline: 0;
+    }
+  }
+</style>

@@ -15,6 +15,8 @@
 }
 
 .dg-detail {
+  /* Detail fades out as the mechanism is redrawn as a system diagram. */
+  opacity: var(--dg-detail-opacity, 1);
   fill: none;
   stroke: var(--dg-line);
   stroke-width: var(--dg-stroke-thin);
@@ -31,11 +33,70 @@
   vector-effect: non-scaling-stroke;
 }
 
-.dg-leader {
+.dg-leader,
+.dg-dim {
   fill: none;
   stroke: var(--dg-annotation);
   stroke-width: var(--dg-stroke-thin);
   vector-effect: non-scaling-stroke;
+}
+
+/* --- Graph primitives: nodes, edges, flows --------------------------------- */
+
+.dg-node {
+  fill: var(--dg-node-fill);
+  stroke: var(--dg-line);
+  stroke-width: var(--dg-stroke);
+  vector-effect: non-scaling-stroke;
+}
+
+.dg-edge {
+  fill: none;
+  stroke: var(--dg-line);
+  stroke-width: var(--dg-stroke-thin);
+  vector-effect: non-scaling-stroke;
+}
+
+/* A path something travels along: a re-route, a notification. */
+.dg-flow {
+  fill: none;
+  stroke: var(--dg-active);
+  stroke-width: var(--dg-stroke);
+  stroke-dasharray: 8 6;
+  vector-effect: non-scaling-stroke;
+}
+
+.dg-harness {
+  fill: none;
+  stroke: var(--dg-annotation);
+  stroke-width: var(--dg-stroke);
+  stroke-dasharray: 14 8;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The request travelling through a system. */
+.dg-dot,
+.dg-notify {
+  fill: var(--dg-active);
+  stroke: none;
+}
+
+/* --- Narrative state ------------------------------------------------------
+   §3.3: every scene has one thing going wrong and one thing fixing it.
+   "Fault" is the red pencil; "active" is carried by weight, not a new hue. */
+
+.is-fault {
+  stroke: var(--dg-fault);
+  stroke-width: var(--dg-stroke-heavy);
+}
+
+.dg-dot.is-fault {
+  fill: var(--dg-fault);
+}
+
+.is-active {
+  stroke: var(--dg-active);
+  stroke-width: var(--dg-stroke-heavy);
 }
 
 .dg-note {
@@ -43,4 +104,8 @@
   font-family: var(--font-annotation);
   letter-spacing: var(--annotation-tracking);
   text-transform: uppercase;
+}
+
+.dg-note--fault {
+  fill: var(--dg-fault);
 }

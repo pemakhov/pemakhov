@@ -2,66 +2,14 @@
 /**
  * Home (§4). Theme: direction A, "drafting paper".
  *
- * Phase 1 scope: real typography, nav, section structure and theme scoping.
- * Diagrams are placeholders — Phase 2 renders the motif here as build-time SVG.
- *
- * Copy marked [decide] / [supply] is drafted from the spec and is NOT final.
+ * Copy lives in src/content/home.ts; lines marked [decide] / [supply] there
+ * are drafted from the spec and are NOT final.
  */
 import Shell from '../layouts/Shell.astro';
 import '../styles/themes/home.css';
 import HeroScene from '../scenes/HeroScene.astro';
-
-// [decide §3.1 / §10.1] — candidate 1 of three. The other two are in the spec.
-const positioning = 'I design mechanisms. These days they’re made of code and models.';
-
-// §7: the text alternative states the drawing's point. The mechanism itself is
-// a stand-in until §10.7 is decided.
-const heroDescription =
-  'A mechanism drawn like an engineering drawing. As you scroll it tips over, ' +
-  'comes apart along its shaft so each part can be named, and goes back together.';
-
-// Drafted from spec §3.2. Paragraphs are [supply]: 60–90 words each, in
-// Serhii's own words, with the true details from §10.9.
-const chapters = [
-  {
-    period: 'until early 2022',
-    title: 'Mechanical design',
-    hook: 'The first thing I ever shipped had a tolerance of ±0.02 mm and no undo button.',
-    body:
-      'Designed physical mechanisms and assemblies — tolerances, kinematics, ' +
-      'drawings a machinist can build from.',
-    carried: 'Constraints are the design. The system must be buildable by someone who isn’t you.',
-  },
-  {
-    period: '2022 → now',
-    title: 'Full-stack web',
-    hook: 'Then I found a material you can fix at 2 a.m. from your phone.',
-    body:
-      'Node.js (NestJS), React (Next.js), PostgreSQL, Azure and AWS. Sole developer or ' +
-      'small team on client products, owning product decisions and client communication.',
-    carried: 'The whole-system view. Being the only engineer in the room. Shipping under real deadlines.',
-  },
-  {
-    period: 'now',
-    title: 'AI-first development',
-    hook: 'Now the drawing draws itself, and I review it.',
-    body:
-      'I build with agents rather than only writing code — Claude Code as the workbench, ' +
-      'custom harnesses and skills, bots, RAG, remote-controlled dev workflows.',
-    carried: 'For you: faster iteration, cheaper experiments, automation that actually gets maintained.',
-  },
-];
-
-// §3.4 — four services mapped 1:1 to the audience table in §2. [supply]
-const services = [
-  { need: 'Build a product from scratch', title: 'Ship a product end to end' },
-  { need: 'Improve an existing product', title: 'Work inside a system you already have' },
-  { need: 'Automate a process', title: 'Automate the work nobody wants to do' },
-  { need: 'Get a personal AI agent', title: 'Put an agent to work for you' },
-];
-
-// §3.6 [decide §10.4] — recommendation is email + Telegram links, no form.
-const cta = { label: 'Email me about your project', href: 'mailto:[supply]' };
+import ChapterScene from '../scenes/ChapterScene.astro';
+import { chapters, cta, positioning, services } from '../content/home';
 ---
 
 <Shell
@@ -71,29 +19,31 @@ const cta = { label: 'Email me about your project', href: 'mailto:[supply]' };
 >
   <!-- 1. Hero (R1, R2). The motif is pinned mid-screen and driven by scroll. -->
   <section aria-labelledby="hero-heading">
-    <HeroScene description={heroDescription}>
+    <HeroScene>
       <p class="annotation">Serhii Pemakhov</p>
       <h1 class="h1 prose" id="hero-heading">{positioning}</h1>
       <p class="hero-cta"><a class="cta" href={cta.href}>{cta.label}</a></p>
     </HeroScene>
   </section>
 
-  <!-- 2. Story — three chapters (R3, R12, R13) -->
-  <section class="section container" aria-labelledby="story-heading">
-    <h2 class="h2 prose" id="story-heading">Three materials, one habit</h2>
+  <!-- 2. Story — three chapters, each one pinned scene (R3, R12, R13) -->
+  <section class="story" aria-labelledby="story-heading">
+    <div class="container">
+      <h2 class="h2 prose" id="story-heading">Three materials, one habit</h2>
+    </div>
     {
       chapters.map((chapter, index) => (
-        <article class="prose">
+        <ChapterScene scene={chapter.scene} labelledBy={`${chapter.scene}-heading`}>
           <p class="annotation">{`Chapter ${index + 1} · ${chapter.period}`}</p>
-          <h3 class="h3">{chapter.title}</h3>
-          <p>{chapter.hook}</p>
-          {/* Phase 2 renders the motif frame here; Phase 4 makes it scroll-driven. */}
-          <figure class="figure" data-scene={`chapter-${index + 1}`}>
-            <p class="annotation">{`[Phase 2] Motif frame ${index + 1}`}</p>
-          </figure>
+          <h3 class="h3" id={`${chapter.scene}-heading`}>
+            {chapter.title}
+          </h3>
+          <p class="chapter-hook">{chapter.hook}</p>
           <p>{chapter.body}</p>
-          <p><strong>What carried over:</strong> {chapter.carried}</p>
-        </article>
+          <p>
+            <strong>What carried over:</strong> {chapter.carried}
+          </p>
+        </ChapterScene>
       ))
     }
   </section>
@@ -146,5 +96,15 @@ const cta = { label: 'Email me about your project', href: 'mailto:[supply]' };
 <style>
   .hero-cta {
     margin-block-start: var(--space-3);
+  }
+
+  .story {
+    padding-block-start: var(--space-7);
+    border-block-start: 1px solid var(--rule);
+  }
+
+  .chapter-hook {
+    font-size: var(--type-1);
+    line-height: var(--leading-heading);
   }
 </style>

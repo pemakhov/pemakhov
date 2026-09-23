@@ -12,11 +12,11 @@
  *   t 0.00–1.00  the drive turns throughout
  */
 
+import { heroScene } from '../../content/home';
 import { PARTS } from '../motif/anchors';
-import { lerp, partAnchors, ramp, type MotifParams, type Point } from '../motif/kinematics';
+import { DEFAULT_PARAMS, easeOut, partPoint, ramp, type MotifParams } from '../motif/kinematics';
+import { leader, partialPolyline, TAG_RAISE, type Scene, type SceneFrame } from './scene';
 import { sample, type Segment } from './table';
-
-const easeOut = (x: number): number => 1 - (1 - x) ** 3;
 
 export const HERO_TABLE = {
   pitch: [
@@ -32,96 +32,66 @@ export const HERO_TABLE = {
     { window: [0.84, 1], from: 72, to: 0 },
   ],
   phase: [{ window: [0, 1], from: 0, to: Math.PI * 6, ease: (x: number) => x }],
-} satisfies Record<keyof MotifParams, Segment[]>;
+} satisfies Partial<Record<keyof MotifParams, Segment[]>>;
 
 const CALLOUT_START = 0.42;
 const CALLOUT_STAGGER = 0.05;
 const CALLOUT_DURATION = 0.08;
 const CALLOUT_RETRACT: readonly [number, number] = [0.8, 0.88];
 
-/** The frame reduced motion shows: fully apart, every part named. */
-export const STATIC_T = 0.78;
-
 /* --- Callout layout (viewBox units) ---------------------------------------
    Even-index parts are labelled top-right, odd-index parts bottom-left, the
-   way a drawing keeps its notes clear of the part. The note text sits on top
-   of the leader's horizontal run, flush with its outer end. */
+   way a drawing keeps its notes clear of the part. */
 const ROW = 50;
-const TEXT_RAISE = 10;
 const RIGHT = { edge: 960, elbow: 700, firstRow: 96 };
 const LEFT = { edge: 40, elbow: 300, lastRow: 944 };
 
-export interface CalloutFrame {
-  id: string;
-  label: string;
-  /** 0 hidden, 1 fully drawn. */
-  progress: number;
-  /** Leader line anchor → elbow → label, drawn up to `progress` of its length. */
-  d: string;
-  textX: number;
-  textY: number;
-  anchor: 'start' | 'end';
-}
-
-export interface HeroFrame {
-  params: MotifParams;
-  callouts: CalloutFrame[];
-}
-
-const f = (n: number): string => (Math.round(n * 10) / 10).toString();
-
-/** The first `progress` (0–1) of a polyline, as a path. */
-export function partialPolyline(points: readonly Point[], progress: number): string {
-  const [first, ...rest] = points;
-  if (!first) return '';
-  const lengths = rest.map((p, i) => {
-    const prev = points[i] as Point;
-    return Math.hypot(p.x - prev.x, p.y - prev.y);
-  });
-  let remaining = lengths.reduce((a, b) => a + b, 0) * progress;
-  let d = `M${f(first.x)} ${f(first.y)}`;
-  for (let i = 0; i < rest.length && remaining > 0; i++) {
-    const from = points[i] as Point;
-    const to = rest[i] as Point;
-    const len = lengths[i] ?? 0;
-    const x = len === 0 ? 1 : Math.min(1, remaining / len);
-    d += `L${f(lerp(from.x, to.x, x))} ${f(lerp(from.y, to.y, x))}`;
-    remaining -= len;
-  }
-  return d;
-}
-
-export function evaluate(t: number): HeroFrame {
-  const params: MotifParams = {
+function evaluate(t: number): SceneFrame {
+  const motif: MotifParams = {
+    ...DEFAULT_PARAMS,
     pitch: sample(HERO_TABLE.pitch, t),
     tilt: sample(HERO_TABLE.tilt, t),
     spread: sample(HERO_TABLE.spread, t),
     phase: sample(HERO_TABLE.phase, t),
   };
 
-  const anchors = partAnchors(params);
   const retract = 1 - ramp(t, CALLOUT_RETRACT[0], CALLOUT_RETRACT[1]);
   const rightCount = Math.ceil(PARTS.length / 2);
+  const frame: SceneFrame = { motif, partState: [], marks: [], tags: [], captions: [] };
 
-  const callouts = PARTS.map((part, i): CalloutFrame => {
+  PARTS.forEach((part, i) => {
     const start = CALLOUT_START + i * CALLOUT_STAGGER;
     const progress = easeOut(ramp(t, start, start + CALLOUT_DURATION)) * retract;
-    const anchor = anchors[i] ?? { x: 0, y: 0 };
-    const row = Math.floor(i / 2);
-
     const right = i % 2 === 0;
     const side = right ? RIGHT : LEFT;
+    const row = Math.floor(i / 2);
     const y = right ? RIGHT.firstRow + row * ROW : LEFT.lastRow - (rightCount - 1 - row) * ROW;
-    return {
-      id: part.id,
-      label: part.label,
-      progress,
-      d: partialPolyline([anchor, { x: side.elbow, y }, { x: side.edge, y }], progress),
-      textX: side.edge,
-      textY: y - TEXT_RAISE,
+    const anchor = partPoint(motif, i, right ? 1 : -1, 0.5);
+
+    frame.marks.push({
+      key: `leader-${part.id}`,
+      cls: 'dg-leader',
+      d: partialPolyline(leader(anchor, side.elbow, y, side.edge), progress),
+      opacity: progress > 0 ? 1 : 0,
+    });
+    frame.tags.push({
+      key: `tag-${part.id}`,
+      text: part.label,
+      x: side.edge,
+      y: y - TAG_RAISE,
       anchor: right ? 'end' : 'start',
-    };
+      opacity: progress,
+    });
   });
 
-  return { params, callouts };
+  return frame;
 }
+
+export const hero: Scene = {
+  id: 'hero',
+  description: heroScene.description,
+  buildT: 0,
+  // Fully apart, every part named.
+  staticT: 0.78,
+  evaluate,
+};
