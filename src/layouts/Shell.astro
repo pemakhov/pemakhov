@@ -1,0 +1,54 @@
+---
+/**
+ * Shared shell (§6). UNTHEMED — it inherits whatever tokens the page sets on
+ * the [data-theme] wrapper. It must never import a theme file: a page imports
+ * its own theme so that theme never ships on another route (R11).
+ */
+import '../styles/reset.css';
+import '../styles/tokens.contract.css';
+import '../styles/shell.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  /** Page <title>. */
+  title: string;
+  /** Meta description. */
+  description: string;
+  /** Theme key. The page must also import the matching src/styles/themes file. */
+  theme: string;
+}
+
+const { title, description, theme } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    {/* TODO(phase 6): og:image generated at build from the hero at its final t. */}
+    <slot name="head" />
+  </head>
+  <!-- The theme scope must be <body> itself: body carries the page background,
+       colour and font, and those would resolve outside the token scope if the
+       wrapper were an inner element. -->
+  <body data-theme={theme}>
+    <div class="theme-root">
+      <a class="skip-link" href="#main">Skip to content</a>
+      <Nav />
+      <main id="main" class="shell-main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

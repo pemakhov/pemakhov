@@ -1,0 +1,27 @@
+/**
+ * /ai theme — §5.4 direction B, "blueprint negative".
+ * Present from day one so that per-page styling is provably real (§5.4).
+ * Imported only by src/pages/ai.astro.
+ */
+[data-theme='ai'] {
+  --bg: #10243f;
+  --surface: #163055;
+  --ink: #e8eef5;
+  --ink-secondary: #8fa3bd;
+  --rule: #1e3a61;
+  --grid: #1e3a61;
+  --accent: #ffb454;
+  --accent-contrast: #10243f;
+  --focus: #ffb454;
+
+  --dg-line: var(--ink);
+  --dg-hatch: #2a4a78;
+  --dg-annotation: var(--ink-secondary);
+  --dg-fault: #ff8a6b;
+  --dg-active: var(--accent);
+  --dg-node-fill: var(--surface);
+
+  --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading: var(--font-body);
+  --font-annotation: ui-sans-serif, system-ui, sans-serif;
+}
