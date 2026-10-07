@@ -1,0 +1,214 @@
+---
+/**
+ * One fixed screen. The intro doubles as the table of contents: chapter names
+ * in big type, each underlined by a highlighter stroke of its colour. Every
+ * chapter ends with Back (to the intro) under its text, and has Next in the
+ * bottom-right corner, highlighted in the next chapter's colour.
+ */
+import Base from './Base.astro';
+import Arrow from '../components/Arrow.astro';
+import { chapters, description, screens, type ChapterSlug } from '../content/copy';
+
+interface Props {
+  title: string;
+  current?: ChapterSlug;
+}
+
+const { title, current } = Astro.props;
+const here = screens.find((s) => s.slug === current)!;
+const index = chapters.findIndex((c) => c.slug === current);
+const next = index >= 0 ? chapters[index + 1] : undefined;
+const isHome = !current;
+---
+
+<Base title={title} description={description}>
+  <div class="screen" style={`--flood: var(--${here.colour})`}>
+    <main class="stage">
+      {
+        isHome ? (
+          <div class="stage-inner toc-layout">
+            <div>
+              <slot />
+            </div>
+            <nav aria-label="Chapters">
+              <ul class="toc">
+                {chapters.map((c) => (
+                  <li>
+                    <a href={`/${c.slug}/`} style={`--swatch: var(--${c.colour})`}>
+                      <span class="toc-label">{c.title}</span>
+                      <Arrow direction="right" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        ) : (
+          <div class="stage-inner">
+            <slot />
+            <div class="back-row">
+              <a class="back" href={`/`}>
+                <Arrow direction="left" />
+                <span>Back</span>
+              </a>
+            </div>
+          </div>
+        )
+      }
+    </main>
+
+    {
+      next && (
+        <footer class="bar-end">
+          <a class="next" href={`/${next.slug}/`} style={`--swatch: var(--${next.colour})`}>
+            <span class="next-text">
+              <span class="next-kicker">Next</span>
+              <span class="next-label">{next.label}</span>
+            </span>
+            <Arrow direction="right" />
+          </a>
+        </footer>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .toc-layout {
+    max-width: 72rem;
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  @media (min-width: 60em) {
+    .toc-layout {
+      grid-template-columns: 1.1fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .back-row {
+    margin-block-start: clamp(1.75rem, 4vh, 2.5rem);
+  }
+
+  .bar-end {
+    grid-row: 3;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 clamp(1rem, 4vw, 2.5rem) clamp(1rem, 3vh, 1.75rem);
+  }
+
+  .back,
+  .next,
+  .toc a {
+    text-decoration: none;
+  }
+
+  .next-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Highlighter style ---------------------------------------------------- */
+
+  .toc {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  /* Block, not flex: the label stays inline so its highlight can follow
+     each wrapped line. */
+  .toc a {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  .toc :global(.arrow) {
+    display: inline-block;
+    vertical-align: -0.05em;
+    margin-inline-start: 0.4em;
+    width: 0.8em;
+    height: 0.8em;
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+
+  .toc a:hover :global(.arrow),
+  .toc a:focus-visible :global(.arrow) {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The highlighter: a flat band of the chapter's colour that rises to fill
+     the whole line on hover. */
+  .toc-label {
+    padding-inline: 0.06em;
+    box-shadow: inset 0 -0.42em 0 var(--swatch);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    transition: box-shadow 180ms ease-out;
+  }
+
+  .toc a:hover .toc-label,
+  .toc a:focus-visible .toc-label {
+    box-shadow: inset 0 -1.2em 0 var(--swatch);
+  }
+
+  .back,
+  .next {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+  }
+
+  .next {
+    gap: 0.75rem;
+    text-align: end;
+  }
+
+  .next-kicker {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .back span,
+  .next-label {
+    padding-inline: 0.06em;
+    box-shadow: inset 0 -0.38em 0 var(--paper);
+    transition: box-shadow 180ms ease-out, color 180ms ease-out;
+  }
+
+  .next-label {
+    box-shadow: inset 0 -0.38em 0 var(--swatch);
+  }
+
+  .back:hover span {
+    box-shadow: inset 0 -1.2em 0 var(--ink);
+    color: var(--paper);
+  }
+
+  .next:hover .next-label {
+    box-shadow: inset 0 -1.2em 0 var(--swatch);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc-label,
+    .back span,
+    .next-label {
+      transition: none;
+    }
+  }
+</style>

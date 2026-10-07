@@ -1,0 +1,224 @@
+/* Neobrutalism: flat colour, true black, heavy rules, no blur, no gradients,
+   no rounded corners. Every colour is a token. */
+
+:root {
+  --paper: #fffcf2;
+  --ink: #000000;
+  --yellow: #ffe44d;
+  --pink: #ff8fcb;
+  --blue: #82d3ff;
+  --lime: #b9f35b;
+  --orange: #ffad5c;
+
+  --rule: 4px;
+
+  --font-display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
+  --font-body: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Moving between screens cross-fades. CSS only, no JS. */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+p,
+ul,
+ol {
+  margin: 0;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* The screen ---------------------------------------------------------------- */
+
+.screen {
+  height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--flood, var(--paper));
+}
+
+/* The chapter scrolls inside its own area if it is taller than the screen. */
+.stage {
+  grid-row: 2;
+  overflow-y: auto;
+  display: grid;
+  align-items: center;
+  padding: clamp(1.5rem, 5vh, 3rem) 1rem;
+  view-transition-name: stage;
+}
+
+.stage-inner {
+  width: 100%;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.stage h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  margin-block-end: clamp(1.25rem, 3vh, 2rem);
+}
+
+.stage p {
+  max-width: 40rem;
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+}
+
+.stage p + p,
+.stage ul + p,
+.stage ol + p {
+  margin-block-start: 1.25rem;
+}
+
+/* Intro ------------------------------------------------------------------- */
+
+.stage .name {
+  font-size: clamp(2.75rem, 9vw, 6rem);
+  line-height: 0.95;
+}
+
+.stage .lede {
+  max-width: 38rem;
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+mark {
+  background: var(--pink);
+  color: inherit;
+  padding-inline: 0.15em;
+  font-weight: 700;
+}
+
+/* Big words: short lists (tools, languages) set as display type ------------- */
+
+.words {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 5.5vw, 3.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.words li {
+  padding: 0.08em 0.3em 0.12em;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Timeline: one heavy line runs through square step markers ---------------- */
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+  display: grid;
+  gap: 1.1rem;
+  position: relative;
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  inset-block: 1rem;
+  inset-inline-start: calc(1.125rem - 2px);
+  width: var(--rule);
+  background: var(--ink);
+}
+
+.timeline li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 1rem;
+  align-items: center;
+  position: relative;
+}
+
+.timeline li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+}
+
+/* Arrows: drawn to match the display type's weight -------------------------- */
+
+.arrow {
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.25;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  transition: transform 160ms ease-out;
+}
+
+/* An arrow answers hover by leaning the way it goes. */
+a:hover > .arrow-left,
+a:hover > * > .arrow-left {
+  transform: translateX(-3px);
+}
+
+a:hover > .arrow-right,
+a:hover > * > .arrow-right {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrow {
+    transition: none;
+  }
+}

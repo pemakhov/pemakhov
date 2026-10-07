@@ -1,0 +1,9 @@
+---
+import { clients } from '../../content/copy';
+---
+
+<h1>{clients.title}</h1>
+<ul class="words" aria-label={clients.languagesSentence}>
+  {clients.languages.map((lang) => <li>{lang}</li>)}
+</ul>
+<p>{clients.rest}</p>

@@ -1,0 +1,11 @@
+---
+import Screen from '../layouts/Screen.astro';
+import Process from '../components/chapters/Process.astro';
+import { chapters, name } from '../content/copy';
+
+const chapter = chapters.find((c) => c.slug === 'process')!;
+---
+
+<Screen title={`${chapter.title} — ${name}`} current="process">
+  <Process />
+</Screen>

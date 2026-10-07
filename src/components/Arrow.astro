@@ -1,0 +1,13 @@
+---
+/** A heavy drawn arrow. Styled by class (.arrow), never by attribute. */
+interface Props {
+  direction: 'left' | 'right';
+}
+
+const { direction } = Astro.props;
+const d = direction === 'left' ? 'M21 12H5M12 4.5 4.5 12l7.5 7.5' : 'M3 12h16M12 4.5l7.5 7.5-7.5 7.5';
+---
+
+<svg class={`arrow arrow-${direction}`} viewBox="0 0 24 24" aria-hidden="true">
+  <path d={d}></path>
+</svg>
