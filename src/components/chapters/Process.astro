@@ -2,6 +2,6 @@
 import { process } from '../../content/copy';
 ---
 
-<h1>{process.title}</h1>
+<h1><span>{process.title}</span></h1>
 <ol class="timeline">{process.steps.map((s) => <li>{s}</li>)}</ol>
 <p>{process.note}</p>

@@ -1,0 +1,68 @@
+---
+import { contact } from '../../content/copy';
+---
+
+<h1><span>{contact.title}</span></h1>
+<p>{contact.body}</p>
+<div class="email">
+  <a href={`mailto:${contact.email}`}>{contact.email}</a>
+  <button type="button" class="copy" data-email={contact.email} hidden>Copy</button>
+</div>
+
+<style>
+  .email {
+    margin-block-start: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .email a {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.18em;
+  }
+
+  .email a:hover {
+    text-decoration-thickness: 0.24em;
+  }
+
+  .copy {
+    font: inherit;
+    font-weight: 700;
+    /* Wide enough for "Copied", so the label swap never resizes it and
+       pushes it onto the next line. */
+    min-inline-size: 6.5em;
+    padding: 0.35em 0.9em;
+    text-align: center;
+    border: var(--rule) solid var(--ink);
+    border-radius: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+
+  .copy:hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  // The one bit of client JS on the site: the button appears only when the
+  // clipboard is available, so without JS the page is just the address.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.copy')) {
+    if (!navigator.clipboard) continue;
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(button.dataset.email ?? '');
+      button.textContent = 'Copied';
+      setTimeout(() => (button.textContent = 'Copy'), 2000);
+    });
+  }
+</script>

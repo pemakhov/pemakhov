@@ -2,7 +2,7 @@
 import { tools } from '../../content/copy';
 ---
 
-<h1>{tools.title}</h1>
+<h1><span>{tools.title}</span></h1>
 <ul class="words" aria-label={tools.body}>
   {tools.items.map((item) => <li>{item}</li>)}
 </ul>

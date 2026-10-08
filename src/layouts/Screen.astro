@@ -2,8 +2,7 @@
 /**
  * One fixed screen. The intro doubles as the table of contents: chapter names
  * in big type, each underlined by a highlighter stroke of its colour. Every
- * chapter ends with Back (to the intro) under its text, and has Next in the
- * bottom-right corner, highlighted in the next chapter's colour.
+ * chapter ends with Back (to the intro) under its text.
  */
 import Base from './Base.astro';
 import Arrow from '../components/Arrow.astro';
@@ -16,13 +15,11 @@ interface Props {
 
 const { title, current } = Astro.props;
 const here = screens.find((s) => s.slug === current)!;
-const index = chapters.findIndex((c) => c.slug === current);
-const next = index >= 0 ? chapters[index + 1] : undefined;
 const isHome = !current;
 ---
 
 <Base title={title} description={description}>
-  <div class="screen" style={`--flood: var(--${here.colour})`}>
+  <div class="screen" style={`--swatch: var(--${here.colour})`}>
     <main class="stage">
       {
         isHome ? (
@@ -56,20 +53,6 @@ const isHome = !current;
         )
       }
     </main>
-
-    {
-      next && (
-        <footer class="bar-end">
-          <a class="next" href={`/${next.slug}/`} style={`--swatch: var(--${next.colour})`}>
-            <span class="next-text">
-              <span class="next-kicker">Next</span>
-              <span class="next-label">{next.label}</span>
-            </span>
-            <Arrow direction="right" />
-          </a>
-        </footer>
-      )
-    }
   </div>
 </Base>
 
@@ -98,22 +81,9 @@ const isHome = !current;
     margin-block-start: clamp(1.75rem, 4vh, 2.5rem);
   }
 
-  .bar-end {
-    grid-row: 3;
-    display: flex;
-    justify-content: flex-end;
-    padding: 0 clamp(1rem, 4vw, 2.5rem) clamp(1rem, 3vh, 1.75rem);
-  }
-
   .back,
-  .next,
   .toc a {
     text-decoration: none;
-  }
-
-  .next-text {
-    display: flex;
-    flex-direction: column;
   }
 
   /* Highlighter style ---------------------------------------------------- */
@@ -164,8 +134,7 @@ const isHome = !current;
     box-shadow: inset 0 -1.2em 0 var(--swatch);
   }
 
-  .back,
-  .next {
+  .back {
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
@@ -173,41 +142,24 @@ const isHome = !current;
     font-size: 1.35rem;
   }
 
-  .next {
-    gap: 0.75rem;
-    text-align: end;
-  }
-
-  .next-kicker {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 0.85rem;
-  }
-
-  .back span,
-  .next-label {
-    padding-inline: 0.06em;
-    box-shadow: inset 0 -0.38em 0 var(--paper);
-    transition: box-shadow 180ms ease-out, color 180ms ease-out;
-  }
-
-  .next-label {
-    box-shadow: inset 0 -0.38em 0 var(--swatch);
+  /* Trimmed to cap height and baseline, so equal block padding gives the
+     hover fill the same room above the letters as below. */
+  .back span {
+    display: inline-block;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    padding: 0.3em 0.06em;
+    box-shadow: inset 0 -0.22em 0 var(--swatch);
+    transition: box-shadow 180ms ease-out;
   }
 
   .back:hover span {
-    box-shadow: inset 0 -1.2em 0 var(--ink);
-    color: var(--paper);
-  }
-
-  .next:hover .next-label {
-    box-shadow: inset 0 -1.2em 0 var(--swatch);
+    box-shadow: inset 0 -2em 0 var(--swatch);
   }
 
   @media (prefers-reduced-motion: reduce) {
     .toc-label,
-    .back span,
-    .next-label {
+    .back span {
       transition: none;
     }
   }

@@ -27,25 +27,33 @@ export const tools = {
 export const process = {
   title: 'How I work',
   steps: [
-    'I work with client on business requirements.',
-    'I make research using AI.',
-    'I select stack and create architecture.',
-    'I create and improve proposal until it is approved.',
-    'Then I work on implementation feature by feature.',
+    'I work with the client on the business requirements.',
+    'I do the research, using AI.',
+    'I choose the stack and outline the architecture.',
+    'I write a proposal and refine it until it is approved.',
+    'I set up the project and build out its architecture.',
+    'I set up the agentic workflow: skills, hooks and the rest.',
+    'Then I implement it feature by feature.',
   ],
-  note: 'Usually I use document driven development. It is when all features are well documented and up to date, so reading it one can have idea of how everything works without need to read the code.',
+  note: 'I usually follow documentation-driven development: every feature is documented and the docs are kept up to date, so anyone can see how the whole system works without reading the code.',
 };
 
 export const clients = {
   title: 'How I communicate with clients',
-  languagesSentence: 'Languages I can communicate on are English, Ukrainian and Russian.',
+  languagesSentence: 'I can communicate in English, Ukrainian and Russian.',
   languages: ['English', 'Ukrainian', 'Russian'],
-  rest: 'I can follow SCRUM technique, or keep it simpler with any regular meetings - up to client. If client prefers to keep me working autonomously most of time - I provide regular reports and record demos.',
+  rest: 'I can follow Scrum or keep it simpler with regular meetings, whichever the client prefers. If the client would rather I work autonomously most of the time, I send regular reports and record demos.',
 };
 
 export const job = {
-  title: 'Where I work',
-  body: 'Currently I am a fulltime developer at ONIX Systems. I am an AI enthusiast, so I spend a lot of time learning new trends or developing side projects among my main work in after work time.',
+  title: 'What I do now',
+  body: 'I work full-time as a developer at ONIX Systems. I\'m also an AI enthusiast, so I spend much of my free time keeping up with new trends and building side projects.',
+};
+
+export const contact = {
+  title: 'How to reach me',
+  body: 'If you\'d like to get in touch, please send me an email.',
+  email: 'serhiy.pemakhov@gmail.com',
 };
 
 /** Chapter order and nav labels. Each chapter is its own route. */
@@ -55,6 +63,7 @@ export const chapters = [
   { slug: 'process', label: process.title, title: process.title, colour: 'pink' },
   { slug: 'clients', label: 'Clients', title: clients.title, colour: 'lime' },
   { slug: 'where', label: job.title, title: job.title, colour: 'orange' },
+  { slug: 'contact', label: 'Contact', title: contact.title, colour: 'violet' },
 ] as const;
 
 export type ChapterSlug = (typeof chapters)[number]['slug'];

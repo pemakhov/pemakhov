@@ -1,14 +1,15 @@
 # Working rules for this repo
 
 Personal site for Serhii Pemakhov. Neobrutalism style, one fixed screen:
-an intro on the home page, and five chapters reached by folder tabs (plus a
+an intro on the home page, and six chapters reached by folder tabs (plus a
 Home tab) along
 the bottom edge.
 
 ## Stack
 
 Astro 7 (static output), plain CSS with custom properties. No UI framework,
-no animation library, no CSS framework, no client JS. Fonts come from Google
+no animation library, no CSS framework. The only client JS is the copy
+button on the contact page. Fonts come from Google
 Fonts (Archivo Black for headings, Space Grotesk for body).
 
 ## Layout of the code
@@ -16,11 +17,11 @@ Fonts (Archivo Black for headings, Space Grotesk for body).
 - `src/content/copy.ts` — all copy, plus the chapter list (order, nav label,
   colour, slug).
 - `src/layouts/Screen.astro` — the screen and its navigation: contents on the
-  intro; Back under the text and Next in the corner on chapters. Navigation
+  intro; Back under the text on chapters. Navigation
   is type only: a highlighter stroke in the chapter's colour, no boxes.
 - `src/layouts/Base.astro` — `<head>`, fonts, meta.
 - `src/pages/index.astro` — the intro.
-- `src/pages/{background,tools,process,clients,where}.astro` — one chapter each.
+- `src/pages/{background,tools,process,clients,where,contact}.astro` — one chapter each.
 - `src/components/chapters/` — the content of each screen.
 - `src/components/Arrow.astro` — the drawn arrow used by navigation.
 - `src/styles/global.css` — tokens and shared styles. Variant layouts carry
@@ -29,13 +30,14 @@ Fonts (Archivo Black for headings, Space Grotesk for body).
 ## Rules
 
 1. **Colours are tokens.** Everything comes from `:root` in `global.css`
-   (`--paper`, `--ink`, `--yellow`, `--pink`, `--blue`, `--lime`, `--orange`).
+   (`--paper`, `--ink`, `--yellow`, `--pink`, `--blue`, `--lime`, `--orange`, `--violet`).
    No colour literals outside that block.
 2. **Neobrutalism, kept quiet.** True black, heavy rules, flat colour. No
    shadows, gradients or rounded corners. Do not wrap content in frames; the
    page got cluttered that way.
 3. **One screen.** The page never scrolls; a chapter taller than the screen
-   scrolls inside `.stage`. A chapter floods the screen with its colour. A new
+   scrolls inside `.stage`. Pages stay paper; a chapter's colour appears
+   only as the highlighter stroke behind its title and under Back. A new
    chapter is a new entry in `chapters`, a component in
    `src/components/chapters/`, and a page.
 4. **Lists look like lists.** Short lists (tools, languages) are big words
